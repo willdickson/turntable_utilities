@@ -84,6 +84,9 @@ def find_arena(
     plt.plot([0,m],[bndry_threshold, bndry_threshold],'r')
     plt.plot([0,m],[max_val, max_val],'g')
     plt.plot([0,m],[min_val, min_val],'g')
+    plt.xlabel('pixel x coord')
+    plt.ylabel('intensity')
+    plt.title('image transect')
     plt.show()
 
     ret, img_thresh = cv2.threshold(img_bndry, bndry_threshold, 255, 0)
