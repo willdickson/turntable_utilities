@@ -75,19 +75,21 @@ def find_arena(
     min_val = img_bndry.min()
     bndry_threshold = int(float(min_val) + bndry_threshold*(float(max_val) - float(min_val)))
 
-    n,m = img_bndry.shape
-    n0 = int(0.4*n)
-    n1 = int(0.6*n)
-    for i in range(n0,n1):
-        x = img_bndry[i,:]
-        plt.plot(x,'.b')
-    plt.plot([0,m],[bndry_threshold, bndry_threshold],'r')
-    plt.plot([0,m],[max_val, max_val],'g')
-    plt.plot([0,m],[min_val, min_val],'g')
-    plt.xlabel('pixel x coord')
-    plt.ylabel('intensity')
-    plt.title('image transect')
-    plt.show()
+    if show_transect:
+        n,m = img_bndry.shape
+        n0 = int(0.4*n)
+        n1 = int(0.6*n)
+        for i in range(n0,n1):
+            x = img_bndry[i,:]
+            plt.plot(x,'.b')
+        plt.plot([0,m],[bndry_threshold, bndry_threshold],'r')
+        plt.plot([0,m],[max_val, max_val],'g')
+        plt.plot([0,m],[min_val, min_val],'g')
+        plt.xlabel('pixel x coord')
+        plt.ylabel('intensity')
+        plt.title('image transect')
+        plt.grid(True)
+        plt.show()
 
     ret, img_thresh = cv2.threshold(img_bndry, bndry_threshold, 255, 0)
     _, contour_list, _ = cv2.findContours(img_thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
