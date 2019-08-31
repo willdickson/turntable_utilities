@@ -2,7 +2,7 @@ from __future__ import print_function
 import cv2
 import sys
 import numpy as np
-import contour_tools
+from . import contour_tools
 
 # DEVEL TMP
 import matplotlib.pyplot as plt

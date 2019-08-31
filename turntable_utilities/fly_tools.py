@@ -3,7 +3,7 @@ import numpy as np
 import scipy
 import scipy.signal
 import cv2
-import contour_tools
+from . import contour_tools
 
 import matplotlib.pyplot as plt
 
