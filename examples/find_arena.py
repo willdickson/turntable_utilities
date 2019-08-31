@@ -1,11 +1,11 @@
-import  turntable_utilities
+import  turntable_utilities.arena_tools as arena_tools
 import numpy as np
 import cv2
 
 #filename = 'data/IMG_0957.mp4'
 filename = 'data/2019_8_27_14_19_test_Trim.mp4'
 
-results = turntable_utilities.arena_tools.find_arena(
+results = arena_tools.find_arena(
         filename,
         method = 'median',
         frame_step = 11,
