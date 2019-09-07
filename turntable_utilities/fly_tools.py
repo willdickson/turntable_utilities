@@ -245,6 +245,54 @@ def get_angle_and_body_vector(moments):
     return angle, max_eig_vec
 
 
+
+def create_bbox_video(filename, arena_dict, threshold=127, bbox_size=(100,100), display=True):
+    """
+    """
+
+    cap = cv2.VideoCapture(filename)
+    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    frame_list = []
+    angle_list = []
+    centroid_list = []
+    
+    while True:
+        
+        ret, img_bgr = cap.read()
+        frame_number = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
+        if not ret:
+            break
+    
+        # Apply boundary mask
+        img_gray = cv2.cvtColor(img_bgr,cv2.COLOR_BGR2GRAY)
+        img_gray[arena_dict['mask_gray']] = 255
+    
+        # Find fly in image and extract relevant data e.g. centroid, body vector, etc.
+        angle, angle_data = find_fly_in_image(img_gray, threshold, 1.0)
+        fly_cx, fly_cy = angle_data['centroid']
+        fly_vec_x, fly_vec_y = angle_data['body_vector']
+    
+        #img_rot_thresh = angle_data['rotated_threshold_image']
+        #n,m = img_rot_thresh.shape
+    
+        # Optional display - shows results during analysis 
+        if display:
+            fly_center = int(fly_cx), int(fly_cy)
+            cv2.circle(img_bgr, fly_center, 2, (255,0,0), 5)
+            p0 = int(fly_center[0] - 0.5*bbox_size[0]), int(fly_center[1] - 0.5*bbox_size[1])
+            p1 = int(fly_center[0] + 0.5*bbox_size[0]), int(fly_center[1] + 0.5*bbox_size[1])
+            cv2.rectangle(img_bgr, p0, p1, (0,0,255), 2)  
+            cv2.imshow('original',img_bgr)
+            if cv2.waitKey(10) & 0xFF == ord('q'):
+                break
+    
+    if display:
+        cap.release()
+        cv2.destroyAllWindows()
+
+
+
 # ---------------------------------------------------------------------------------------
 if __name__ == '__main__':
 
