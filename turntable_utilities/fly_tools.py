@@ -246,12 +246,16 @@ def get_angle_and_body_vector(moments):
 
 
 
-def create_bbox_video(filename, arena_dict, threshold=127, bbox_size=(100,100), display=True):
+def create_bbox_video(in_filename, out_filename, arena_dict, threshold=127, bbox_size=(100,100), display=True):
     """
     """
 
-    cap = cv2.VideoCapture(filename)
+    cap = cv2.VideoCapture(in_filename)
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    out = cv2.VideoWriter(out_filename, fourcc, 30.0, bbox_size)
+
 
     frame_list = []
     angle_list = []
@@ -275,18 +279,24 @@ def create_bbox_video(filename, arena_dict, threshold=127, bbox_size=(100,100), 
     
         #img_rot_thresh = angle_data['rotated_threshold_image']
         #n,m = img_rot_thresh.shape
+
+        fly_center = int(fly_cx), int(fly_cy)
+        p = int(fly_center[0] - 0.5*bbox_size[0]), int(fly_center[1] - 0.5*bbox_size[1])
+        q = int(fly_center[0] + 0.5*bbox_size[0]), int(fly_center[1] + 0.5*bbox_size[1])
+        img_cropped = img_gray[p[1]:q[1],p[0]:q[0]]
+        img_out = cv2.cvtColor(img_cropped,cv2.COLOR_GRAY2BGR)
+        out.write(img_out)
     
         # Optional display - shows results during analysis 
         if display:
-            fly_center = int(fly_cx), int(fly_cy)
             cv2.circle(img_bgr, fly_center, 2, (255,0,0), 5)
-            p0 = int(fly_center[0] - 0.5*bbox_size[0]), int(fly_center[1] - 0.5*bbox_size[1])
-            p1 = int(fly_center[0] + 0.5*bbox_size[0]), int(fly_center[1] + 0.5*bbox_size[1])
-            cv2.rectangle(img_bgr, p0, p1, (0,0,255), 2)  
+            cv2.rectangle(img_bgr, p, q, (0,0,255), 2)  
             cv2.imshow('original',img_bgr)
+            cv2.imshow('cropped', img_cropped)
             if cv2.waitKey(10) & 0xFF == ord('q'):
                 break
     
+    out.release()
     if display:
         cap.release()
         cv2.destroyAllWindows()
