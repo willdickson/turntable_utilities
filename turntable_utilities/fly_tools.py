@@ -256,7 +256,6 @@ def create_bbox_video(in_filename, out_filename, arena_dict, threshold=127, bbox
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     out = cv2.VideoWriter(out_filename, fourcc, 30.0, bbox_size)
 
-
     frame_list = []
     angle_list = []
     centroid_list = []
@@ -267,6 +266,8 @@ def create_bbox_video(in_filename, out_filename, arena_dict, threshold=127, bbox
         frame_number = int(cap.get(cv2.CAP_PROP_POS_FRAMES))
         if not ret:
             break
+
+        img_bgr_copy = np.array(img_bgr)
     
         # Apply boundary mask
         img_gray = cv2.cvtColor(img_bgr,cv2.COLOR_BGR2GRAY)
@@ -283,9 +284,10 @@ def create_bbox_video(in_filename, out_filename, arena_dict, threshold=127, bbox
         fly_center = int(fly_cx), int(fly_cy)
         p = int(fly_center[0] - 0.5*bbox_size[0]), int(fly_center[1] - 0.5*bbox_size[1])
         q = int(fly_center[0] + 0.5*bbox_size[0]), int(fly_center[1] + 0.5*bbox_size[1])
-        img_cropped = img_gray[p[1]:q[1],p[0]:q[0]]
-        img_out = cv2.cvtColor(img_cropped,cv2.COLOR_GRAY2BGR)
-        out.write(img_out)
+
+        img_cropped = img_bgr_copy[p[1]:q[1],p[0]:q[0],:]
+        #img_out = cv2.cvtColor(img_cropped,cv2.COLOR_GRAY2BGR)
+        out.write(img_cropped)
     
         # Optional display - shows results during analysis 
         if display:
