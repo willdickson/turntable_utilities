@@ -1,4 +1,5 @@
 from __future__ import print_function
+import os
 import sys
 import cv2
 import h5py
@@ -31,11 +32,11 @@ LABEL_MOVE_TABLE = {
 class LabelMaker(object):
 
 
-    def __init__(self, input_filename, output_filename, propagate=True):
-        self.input_filename = input_filename
-        self.output_filename = output_filename
+    def __init__(self, video_filename, label_filename, propagate=True):
+        self.video_filename = video_filename
+        self.label_filename = label_filename
 
-        self.cap = cv2.VideoCapture(self.input_filename)
+        self.cap = cv2.VideoCapture(self.video_filename)
         cv2.namedWindow('image')
         cv2.setMouseCallback('image', self.on_mouse)
 
@@ -45,6 +46,7 @@ class LabelMaker(object):
 
         self.label_dict = {}
         self.image_dict = {}
+        self.load_labels()
 
     def __del__(self):
         self.cap.release()
@@ -133,25 +135,36 @@ class LabelMaker(object):
         image_array = np.array(image_list)
         label_array = np.array(label_list)
         print('Saving {} labeled frames'.format(frame_array.shape[0]))
-        h5file = h5py.File(self.output_filename, 'w')
+        h5file = h5py.File(self.label_filename, 'w')
         h5file.create_dataset('frame',data=frame_array)
         h5file.create_dataset('image',data=image_array)
         h5file.create_dataset('label',data=label_array)
-
         h5file.close()
 
-
-
+    def load_labels(self):
+        if not os.path.exists(self.label_filename):
+            return
+        h5file = h5py.File(self.label_filename)
+        frame_array = np.array(h5file['frame'])
+        image_array = np.array(h5file['image'])
+        label_array = np.array(h5file['label'])
+        for i, frame in enumerate(frame_array):
+            self.image_dict[frame] = image_array[i]
+            self.label_dict[frame] = tuple(label_array[i,:])
+        h5file.close()
 
 
 
 # ---------------------------------------------------------------------------------------
 if __name__ == '__main__':
 
-    input_filename = sys.argv[1]
-    output_filename = 'labels.h5'
+    video_filename = sys.argv[1]
+    if len(sys.argv) > 2:
+        label_filename = sys.argv[2]
+    else:
+        label_filename = 'labels.h5'
 
-    label_maker = LabelMaker(input_filename,output_filename)
+    label_maker = LabelMaker(video_filename,label_filename)
     label_maker.run()
 
 
